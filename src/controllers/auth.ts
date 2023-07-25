@@ -11,12 +11,6 @@ export const signupController = async (req: SignupBody, res: Response) => {
   try {
     const { username, email, password, avatar } = req.body;
 
-    let image: string;
-
-    if (!avatar) image = `https://ui-avatars.com/api/?name=${username}`;
-
-    image = avatar;
-
     if (!username || !email || !password) {
       return res.status(404).json({
         success: false,
@@ -26,7 +20,7 @@ export const signupController = async (req: SignupBody, res: Response) => {
 
     const userToFind = await prisma.user.findFirst({
       where: {
-        email,
+        OR: [{ email: email }, { username: username }],
       },
     });
 
@@ -44,13 +38,15 @@ export const signupController = async (req: SignupBody, res: Response) => {
         email,
         password: hashedPassword,
         username,
-        avatar: image,
+        avatar: avatar
+          ? avatar
+          : `https://ui-avatars.com/api/?name=${username}`,
         backgroundImage: '',
       },
     });
 
     const payload = {
-      userId: userToFind.userId,
+      userId: newUser.userId,
       username,
       email,
       avatar: newUser.avatar,
@@ -67,6 +63,8 @@ export const signupController = async (req: SignupBody, res: Response) => {
       },
     });
   } catch (error) {
+    console.log(error);
+
     res.status(500).json({
       success: false,
       message: 'Internal Server Error',
