@@ -1,6 +1,6 @@
 import { Request } from 'express';
 
-export interface SignupBody extends Request {
+export interface SignupRequest extends Request {
   body: {
     username: string;
     password: string;
@@ -9,10 +9,16 @@ export interface SignupBody extends Request {
   };
 }
 
-export interface LoginBody extends Request {
+export interface LoginRequest extends Request {
   body: {
     username?: string;
     email?: string;
     password: string;
+  };
+}
+
+export interface GetUserRequest extends Request {
+  params: {
+    userId: string;
   };
 }

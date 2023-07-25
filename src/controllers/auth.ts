@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { LoginBody, SignupBody } from 'requests';
+import { LoginRequest, SignupRequest } from 'requests';
 import { prisma } from '../lib/prisma';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
@@ -7,7 +7,7 @@ import { envMap } from '../utils/getEnvVars';
 
 const TOKEN_SECRET = envMap.get('TOKEN_SECRET');
 
-export const signupController = async (req: SignupBody, res: Response) => {
+export const signupController = async (req: SignupRequest, res: Response) => {
   try {
     const { username, email, password, avatar } = req.body;
 
@@ -72,7 +72,7 @@ export const signupController = async (req: SignupBody, res: Response) => {
   }
 };
 
-export const loginController = async (req: LoginBody, res: Response) => {
+export const loginController = async (req: LoginRequest, res: Response) => {
   try {
     const { username, email, password } = req.body;
 
