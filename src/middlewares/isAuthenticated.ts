@@ -10,11 +10,8 @@ export const isAuthenticated = (
   next: NextFunction,
 ) => {
   const authorizationHeader = req.headers.authorization;
-  console.log('R UN');
 
   if (authorizationHeader) {
-    console.log('TRUE');
-
     const token = authorizationHeader.replace('Bearer ', '');
 
     jwt.verify(token, TOKEN_SECRET, async (err, user) => {

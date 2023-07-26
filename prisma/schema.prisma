@@ -30,7 +30,6 @@ model Post {
   likes        String[]
   createdAt    DateTime @default(now())
   User         User?    @relation(fields: [userUserId], references: [userId])
-  userUserId   String?
 }
 
 model Comment {

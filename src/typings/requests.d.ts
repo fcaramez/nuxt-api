@@ -26,3 +26,10 @@ export interface UpdateUserRequest extends Request {
     backgroundImage: string;
   };
 }
+
+export interface AddPostRequest extends Request {
+  body: {
+    content: string;
+    attachments?: string[];
+  };
+}
