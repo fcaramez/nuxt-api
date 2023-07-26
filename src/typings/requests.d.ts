@@ -17,8 +17,12 @@ export interface LoginRequest extends Request {
   };
 }
 
-export interface GetUserRequest extends Request {
-  params: {
-    userId: string;
+export interface UpdateUserRequest extends Request {
+  body: {
+    username: string;
+    email: string;
+    password: string;
+    avatar: string;
+    backgroundImage: string;
   };
 }
