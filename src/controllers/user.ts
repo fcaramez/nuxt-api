@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { UpdateUserRequest } from 'requests';
-import * as bcrypt from 'bcrypt';
 
 export const getUserController = async (_req: Request, res: Response) => {
   try {
