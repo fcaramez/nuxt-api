@@ -8,17 +8,16 @@ datasource db {
 }
 
 model User {
-  userId          String    @id @default(uuid())
-  username        String    @unique
-  email           String    @unique
+  userId          String   @id @default(uuid())
+  username        String   @unique
+  email           String   @unique
   avatar          String
   backgroundImage String
   password        String
-  posts           Post[]
   likedPosts      String[]
   followers       String[]
   following       String[]
-  comments        Comment[]
+  comments        String[]
 }
 
 model Post {
@@ -28,8 +27,8 @@ model Post {
   attatchments String[]
   likeCount    Int
   likes        String[]
+  comments     String[]
   createdAt    DateTime @default(now())
-  User         User?    @relation(fields: [userUserId], references: [userId])
 }
 
 model Comment {
@@ -37,5 +36,4 @@ model Comment {
   content   String
   userId    String
   createdAt DateTime @default(now())
-  User      User?    @relation(fields: [userId], references: [userId])
 }

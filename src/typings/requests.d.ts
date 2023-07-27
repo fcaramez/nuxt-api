@@ -1,5 +1,6 @@
 import { Request } from 'express';
 
+// Auth
 export interface SignupRequest extends Request {
   body: {
     username: string;
@@ -27,6 +28,14 @@ export interface UpdateUserRequest extends Request {
   };
 }
 
+export interface ResetPasswordRequest extends Request {
+  body: {
+    password: string;
+    oldPassword: string;
+  };
+}
+
+// Posts
 export interface AddPostRequest extends Request {
   body: {
     content: string;

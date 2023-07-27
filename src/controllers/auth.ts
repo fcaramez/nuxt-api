@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { LoginRequest, SignupRequest } from 'requests';
+import { LoginRequest, ResetPasswordRequest, SignupRequest } from 'requests';
 import { prisma } from '../lib/prisma';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
@@ -133,6 +133,63 @@ export const loginController = async (req: LoginRequest, res: Response) => {
     return res.status(500).json({
       success: false,
       message: 'Internal server error',
+    });
+  }
+};
+
+export const recoverPassword = async (
+  req: ResetPasswordRequest,
+  res: Response,
+) => {
+  try {
+    const { userId } = res.locals.user;
+    const { password, oldPassword } = req.body;
+
+    const { password: hashedPassword } = await prisma.user.findUnique({
+      where: {
+        userId,
+      },
+    });
+
+    const verify = await bcrypt.compare(oldPassword, hashedPassword);
+
+    if (!verify) {
+      return res.status(400).json({
+        message: 'Incorrect password',
+        success: false,
+      });
+    }
+
+    const checkTheSame = await bcrypt.compare(password, hashedPassword);
+
+    if (checkTheSame) {
+      return res.status(400).json({
+        message: 'Password cannot be the same',
+        success: false,
+      });
+    }
+
+    const newPassword = await bcrypt.hash(password, 10);
+
+    await prisma.user.update({
+      where: {
+        userId,
+      },
+      data: {
+        password: newPassword,
+      },
+    });
+
+    return res.status(200).json({
+      message: 'Password updated successfully',
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      message: 'Internal server error',
+      success: false,
     });
   }
 };
