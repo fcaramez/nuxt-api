@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import { LoginRequest, ResetPasswordRequest, SignupRequest } from 'requests';
-import { prisma } from '../lib/prisma';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
-import { envMap } from '../utils/getEnvVars';
+import { User } from '../models/User.model';
+import { getEnvVars } from '../utils/getEnvVars';
 
-const TOKEN_SECRET = envMap.get('TOKEN_SECRET');
+const { TOKEN_SECRET } = getEnvVars();
 
 export const signupController = async (req: SignupRequest, res: Response) => {
   try {
@@ -18,10 +18,13 @@ export const signupController = async (req: SignupRequest, res: Response) => {
       });
     }
 
-    const userToFind = await prisma.user.findFirst({
-      where: {
-        OR: [{ email: email }, { username: username }],
-      },
+    const userToFind = await User.findOne({
+      $or: [
+        {
+          username,
+        },
+        { email },
+      ],
     });
 
     if (userToFind) {
@@ -33,20 +36,16 @@ export const signupController = async (req: SignupRequest, res: Response) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        username,
-        avatar: avatar
-          ? avatar
-          : `https://ui-avatars.com/api/?name=${username}`,
-        backgroundImage: '',
-      },
+    const newUser = await User.create({
+      email,
+      password: hashedPassword,
+      username,
+      avatar: avatar ? avatar : `https://ui-avatars.com/api/?name=${username}`,
+      backgroundImage: '',
     });
 
     const payload = {
-      userId: newUser.userId,
+      userId: newUser._id,
       username,
       email,
       avatar: newUser.avatar,
@@ -83,17 +82,13 @@ export const loginController = async (req: LoginRequest, res: Response) => {
       });
     }
 
-    const userToFind = await prisma.user.findFirst({
-      where: {
-        OR: [
-          {
-            email: email,
-          },
-          {
-            username: username,
-          },
-        ],
-      },
+    const userToFind = await User.findOne({
+      $or: [
+        {
+          username,
+        },
+        { email },
+      ],
     });
 
     if (!userToFind) {
@@ -113,7 +108,7 @@ export const loginController = async (req: LoginRequest, res: Response) => {
     }
 
     const payload = {
-      userId: userToFind.userId,
+      userId: userToFind._id,
       username: userToFind.username,
       email: userToFind.email,
       avatar: userToFind.avatar,
@@ -145,11 +140,7 @@ export const recoverPassword = async (
     const { userId } = res.locals.user;
     const { password, oldPassword } = req.body;
 
-    const { password: hashedPassword } = await prisma.user.findUnique({
-      where: {
-        userId,
-      },
-    });
+    const { password: hashedPassword } = await User.findById(userId);
 
     const verify = await bcrypt.compare(oldPassword, hashedPassword);
 
@@ -171,13 +162,8 @@ export const recoverPassword = async (
 
     const newPassword = await bcrypt.hash(password, 10);
 
-    await prisma.user.update({
-      where: {
-        userId,
-      },
-      data: {
-        password: newPassword,
-      },
+    await User.findByIdAndUpdate(userId, {
+      password: newPassword,
     });
 
     return res.status(200).json({

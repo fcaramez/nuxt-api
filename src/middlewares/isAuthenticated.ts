@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
-import { envMap } from '../utils/getEnvVars';
+import { getEnvVars } from '../utils/getEnvVars';
 
-const TOKEN_SECRET = envMap.get('TOKEN_SECRET');
+const { TOKEN_SECRET } = getEnvVars();
 
 export const isAuthenticated = (
   req: Request,

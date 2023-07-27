@@ -1,1 +1,6 @@
-export const envMap = new Map([['TOKEN_SECRET', process.env.TOKEN_SECRET]]);
+import dotenv from 'dotenv';
+export const getEnvVars = () => {
+  const keys = dotenv.config().parsed;
+
+  return keys;
+};
